@@ -19,20 +19,27 @@ public class UserService {
     private final UserRepository userRepository;
 
     public UserResponse register(RegisterRequest request) {
-        User user = new User(
-                null,
-                request.getEmail(),
-                request.getPassword(),
-                request.getFirstName(),
-                request.getLastName(),
-                Instant.parse("2024-02-15T08:30:15Z")
-                        .atZone(ZoneOffset.UTC)
-                        .toLocalDateTime(),
-                Instant.parse("2024-02-15T08:30:15Z").atZone(ZoneOffset.UTC).toLocalDateTime(),
+        User user = User.builder()
+                .email(request.getEmail())
+                .password(request.getPassword())
+                .firstName(request.getFirstName())
+                .lastName(request.getLastName())
+                .build();
 
-                List.of(),
-                List.of()
-        );
+//        User user = new User(
+//                null,
+//                request.getEmail(),
+//                request.getPassword(),
+//                request.getFirstName(),
+//                request.getLastName(),
+//                Instant.parse("2024-02-15T08:30:15Z")
+//                        .atZone(ZoneOffset.UTC)
+//                        .toLocalDateTime(),
+//                Instant.parse("2024-02-15T08:30:15Z").atZone(ZoneOffset.UTC).toLocalDateTime(),
+//
+//                List.of(),
+//                List.of()
+        // );
 
         User savedUser = userRepository.save(user);
         return mapToResponse(savedUser);
