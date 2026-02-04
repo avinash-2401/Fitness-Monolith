@@ -24,10 +24,10 @@ Controller  →  Service  →  Repository  →  Database
 
 ## 🔹 Layers Explained
 
-Controller: Handles HTTP requests and responses.
-Service: Contains business logic.
-Repository: Handles database operations.
-DTO Layer: Separates entities from API contracts.
+- Controller: Handles HTTP requests and responses.
+- Service: Contains business logic.
+- Repository: Handles database operations.
+- DTO Layer: Separates entities from API contracts.
 
 ## 📌 Key Features
 
@@ -47,12 +47,12 @@ DTO Layer: Separates entities from API contracts.
 
 ## 🔧 API Testing
 
-All APIs are tested using Postman.
-Standard HTTP methods used:
-GET
-POST
-PUT
-DELETE
+- All APIs are tested using Postman.
+- Standard HTTP methods used:
+- GET
+- POST
+- PUT
+- DELETE
 
 ## ⚙️ How to Run the Project
 
