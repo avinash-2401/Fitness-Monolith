@@ -8,6 +8,7 @@ import com.project.Fitness.model.Activity;
 import com.project.Fitness.model.Recommendation;
 import com.project.Fitness.model.User;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -20,25 +21,44 @@ public class RecommendationService {
     private final UserRepository userRepository;
     private final ActivityRepository activityRepository;
 
-    public  Recommendation genrateRecommendation(RecommendationRequest request) {
-      User user = userRepository.findById(request.getUserId()).orElseThrow(()-> new RuntimeException("User not found" + request.getUserId()));
-      Activity activity= activityRepository.findById(request.getActivityId()).orElseThrow(()->new RuntimeException("Activity not match" + request.getActivityId()));
-
-      Recommendation recommendation=Recommendation.builder()
-              .user(user)
-              .activity(activity)
-              .improvement(request.getImprovement())
-              .suggestion(request.getSuggestion())
-              .safety(request.getSafety())
-              .build();
-
-        Recommendation savedRecommendation = recommendationRepo.save(recommendation);
-          return savedRecommendation;
-
+    // ⭐ get logged-in user from JWT
+    private String getLoggedUserId() {
+        return (String) SecurityContextHolder
+                .getContext()
+                .getAuthentication()
+                .getPrincipal();
     }
 
-    public List<Recommendation> getUserRecommendation(String userId) {
+    // ✅ generate recommendation (JWT-based user)
+    public Recommendation genrateRecommendation(RecommendationRequest request) {
 
+        String userId = getLoggedUserId();
+
+        User user = userRepository.findById(userId)
+                .orElseThrow(() ->
+                        new RuntimeException("User not found " + userId));
+
+        Activity activity = activityRepository.findById(request.getActivityId())
+                .orElseThrow(() ->
+                        new RuntimeException("Activity not match " + request.getActivityId()));
+
+        Recommendation recommendation = Recommendation.builder()
+                .user(user)
+                .activity(activity)
+                .type(request.getType())                 // 🔥 ADD THIS
+                .recommendation(request.getRecommendation())
+                .improvement(request.getImprovement())
+                .suggestion(request.getSuggestion())
+                .safety(request.getSafety())
+                .build();
+
+        return recommendationRepo.save(recommendation);
+    }
+
+    // ✅ get recommendations of logged user
+    public List<Recommendation> getUserRecommendationForLoggedUser() {
+
+        String userId = getLoggedUserId();
         return recommendationRepo.findByUserId(userId);
     }
 

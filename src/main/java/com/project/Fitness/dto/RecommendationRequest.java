@@ -13,6 +13,8 @@ public class RecommendationRequest {
 
      private String userId;
      private String activityId;
+    private String type;
+    private String recommendation;
      private List<String> suggestion;
      private List<String> improvement;
      private List<String>  safety;

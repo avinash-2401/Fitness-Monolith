@@ -14,7 +14,7 @@ import java.util.Map;
 public class ActivityResponse {
 
     private String id;
-    private String useId;
+    private String userId;
     private ActivityTypes type ;
     private Map<String,Object> additionalMetrics;
     private Integer duration;

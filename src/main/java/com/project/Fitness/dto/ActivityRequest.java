@@ -13,7 +13,7 @@ import java.util.Map;
 @NoArgsConstructor
 public class ActivityRequest {
 
-    private String userId;
+//    private String userId;
     private ActivityTypes type ;
     private Map<String,Object> additionalMetrics;
     private Integer duration;

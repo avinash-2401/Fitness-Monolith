@@ -1,55 +1,90 @@
 package com.project.Fitness.Service;
 
-
 import com.project.Fitness.Repository.UserRepository;
+import com.project.Fitness.dto.LoginRequest;
 import com.project.Fitness.dto.RegisterRequest;
 import com.project.Fitness.dto.UserResponse;
 import com.project.Fitness.model.User;
+import com.project.Fitness.model.UserRole;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-
-import java.time.Instant;
-import java.time.ZoneOffset;
-import java.util.List;
 
 @Service
 @RequiredArgsConstructor
 public class UserService {
 
     private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
 
+    /**
+     * =========================
+     * REGISTER USER
+     * =========================
+     */
     public UserResponse register(RegisterRequest request) {
+
+        // default role
+        UserRole role = request.getRole() != null
+                ? request.getRole()
+                : UserRole.USER;
+
+        // create user entity
         User user = User.builder()
                 .email(request.getEmail())
-                .password(request.getPassword())
+                .password(passwordEncoder.encode(request.getPassword())) // 🔐 encode password
+                .role(role)
                 .firstName(request.getFirstName())
                 .lastName(request.getLastName())
                 .build();
 
-//        User user = new User(
-//                null,
-//                request.getEmail(),
-//                request.getPassword(),
-//                request.getFirstName(),
-//                request.getLastName(),
-//                Instant.parse("2024-02-15T08:30:15Z")
-//                        .atZone(ZoneOffset.UTC)
-//                        .toLocalDateTime(),
-//                Instant.parse("2024-02-15T08:30:15Z").atZone(ZoneOffset.UTC).toLocalDateTime(),
-//
-//                List.of(),
-//                List.of()
-        // );
-
         User savedUser = userRepository.save(user);
+
         return mapToResponse(savedUser);
     }
 
-    private UserResponse mapToResponse(User savedUser) {
+    /**
+     * =========================
+     * LOGIN AUTHENTICATION
+     * =========================
+     */
+    public User authentication(LoginRequest loginRequest) {
+
+        // find user by email
+        User user = userRepository.findByEmail(loginRequest.getEmail());
+
+        if (user == null) {
+            throw new RuntimeException("Invalid Credential");
+        }
+
+        // compare raw password with encoded password
+        boolean isMatch = passwordEncoder.matches(
+                loginRequest.getPassword(),
+                user.getPassword()
+        );
+
+        if (!isMatch) {
+            throw new RuntimeException("Invalid Credential");
+        }
+
+        return user;
+    }
+
+    /**
+     * =========================
+     * MAP ENTITY -> RESPONSE DTO
+     * =========================
+     */
+    public UserResponse mapToResponse(User savedUser) {
+
         UserResponse response = new UserResponse();
+
         response.setId(savedUser.getId());
         response.setEmail(savedUser.getEmail());
-        response.setPassword(savedUser.getPassword());
+
+        // ❌ NEVER expose password in response
+        // response.setPassword(savedUser.getPassword());
+
         response.setFirstName(savedUser.getFirstName());
         response.setLastName(savedUser.getLastName());
         response.setCreatedAt(savedUser.getCreatedAt());
